@@ -1,11 +1,12 @@
 import argparse
-import urllib2
-import csv
+from urllib.request import urlopen
+import pandas as pd
 import re
+import urllib.parse,urllib.error
 
 
 def download(url):
-     data_content = urllib2.urlopen(url)
+     data_content = urlopen(url)
      return data_content
 
 
@@ -19,7 +20,7 @@ def process(content):
                 'Google Chrome':0,
                 'Safari':0}
 
-    for line in csv.reader(content):
+    for line in pd.read_csv(content):
         counts['rowcount'] += 1
         if re.search(r"jpe?g|JPE?G|GIF|PNG|gif|png", line[0]):
             counts['imagehit'] += 1
@@ -43,7 +44,7 @@ def process(content):
                                                              image_cal,
                                                              resultname,
                                                              resultnum)
-    print report
+    print (report)
 
 
 def main():
@@ -56,12 +57,13 @@ def main():
     if args.url:
         try:
             inf = download(args.url)
-            process(inf)
-        except urllib2.URLError as url_err:
-            print 'URL is INVALID'
+            process(inf)  
+
+        except urllib.error.HTTPError as url_err:
+            print ('URL is INVALID')
             raise url_err
     else:
-        print 'Please enter a valid URL.'
+        print ('Please enter a valid URL.')
 
 if __name__ == '__main__':
     main()
